@@ -12,40 +12,52 @@ from pycaret.classification import setup, compare_models, pull, save_model
 with st.sidebar:
     st.image("logo.png")
     st.title("AutoML Classification App")
+    st.title("Upload your file for modeling")
+    file=st.file_uploader("upload your file here")
     choice=st.radio("Navigation",["Upload","Profiling","ML","Download"])
     st.info("This App can be used to creare mahcine learning model and data profiling using pandas and pycaret")
      
-if os.path.exists("sourcedata.csv"):
-   df=pd.read_csv("sourcedata.csv",index_col=None)
+if file is not None:
+    df = pd.read_csv(file)
+   
 
 if choice=="Upload":
-    st.title("Upload your file for modeling")
-    file=st.file_uploader("upload your file here")
     if file:
-        df=pd.read_csv(file,index_col=None)
-        df.to_csv("sourcedata.csv",index=None)
         st.dataframe(df)
+    else:
+        st.title("Upload your file for modeling")
     
 if choice=="Profiling":
-    st.title("Automated Exploratory Data Analysis")
-    profile_report=ProfileReport(df)
-    st_profile_report(profile_report)
+    if file:
+        st.title("Automated Exploratory Data Analysis")
+        profile_report=ProfileReport(df)
+        st_profile_report(profile_report)
+    else:
+        st.title("Upload your file for modeling")
 
 if choice=="ML":
-    st.title("Machine learning Model")
-    chosen_target = st.selectbox('Choose the Target Column', df.columns)
-    if st.button('Run Modelling'):
-        setup(df,target=chosen_target)
-        setup_df=pull()
-        st.info("This is the Ml expriment settings")
-        st.dataframe(setup_df)
-        best_model=compare_models()
-        compare_df=pull()
-        st.info("This is the Ml model")
-        st.dataframe(compare_df)
-        best_model
-        save_model(best_model, "best_model")
+    if file:
+        st.title("Machine learning Model")
+        chosen_target = st.selectbox('Choose the Target Column', df.columns)
+        if st.button('Run Modelling'):
+            setup(df,target=chosen_target)
+            setup_df=pull()
+            st.info("This is the Ml expriment settings")
+            st.dataframe(setup_df)
+            best_model=compare_models()
+            compare_df=pull()
+            st.info("This is the Ml model")
+            st.dataframe(compare_df)
+            best_model
+            save_model(best_model, "best_model")
         
+    else:
+        st.title("Upload your file for modeling")
+           
 if choice=="Download":
-    with open("best_model.pkl", 'rb') as f:
-        st.download_button("Download Model",f,file_name="best_model.pkl")
+    if file:
+        with open("best_model.pkl", 'rb') as f:
+            st.download_button("Download Model",f,file_name="best_model.pkl")
+    
+    else:
+        st.title("Upload your file for modeling")
